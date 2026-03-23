@@ -1,15 +1,11 @@
+# Gradle
+*.zip
+.gradle/
+gradle-8.4/
+build/
+
 # Android
 *.apk
-*.aab
-*.ap_
-*.dex
-*.class
-bin/
-gen/
-out/
-build/
-.gradle/
-local.properties
 
 # IDE
 .idea/
