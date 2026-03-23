@@ -1,6 +1,14 @@
 # 体重记录 App
 
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/kleinlsl/stitch_log_weight/releases/tag/v1.0.0)
+[![Platform](https://img.shields.io/badge/platform-Android-green.svg)](https://www.android.com/)
+[![License](https://img.shields.io/badge/license-Internal-red.svg)](#)
+
 一款基于 Jetpack Compose 的 Android 体重追踪应用，帮助用户记录和管理体重数据，保持健康生活方式。
+
+## 🎉 最新版本
+
+**V1.0.0** (2026-03-23) - [更新日志](docs/CHANGELOG.md) | [发布页面](https://github.com/kleinlsl/stitch_log_weight/releases/tag/v1.0.0)
 
 ## ✨ 功能特性
 
@@ -99,6 +107,7 @@ export JAVA_HOME=$(/usr/libexec/java_home)
 
 | 文档 | 说明 |
 |------|------|
+| [更新日志](docs/CHANGELOG.md) | 版本更新记录 |
 | [用户指南](docs/USER_GUIDE.md) | 应用使用说明 |
 | [任务清单](docs/TODO.md) | 开发进度追踪 |
 | [技术设计](docs/TECHNICAL_DESIGN.md) | 架构设计文档 |
