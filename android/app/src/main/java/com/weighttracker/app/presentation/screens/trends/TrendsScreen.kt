@@ -56,6 +56,7 @@ fun TrendsScreen(
     viewModel: TrendsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     Column(
         modifier = Modifier
@@ -63,7 +64,10 @@ fun TrendsScreen(
             .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.statusBars)
     ) {
-        TopBar(onHistoryClick = onNavigateToHistory)
+        TopBar(
+            onHistoryClick = onNavigateToHistory,
+            onShareClick = { viewModel.shareTrendData(context) }
+        )
 
         Column(
             modifier = Modifier
@@ -127,7 +131,7 @@ fun TrendsScreen(
 }
 
 @Composable
-private fun TopBar(onHistoryClick: () -> Unit) {
+private fun TopBar(onHistoryClick: () -> Unit, onShareClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -145,12 +149,21 @@ private fun TopBar(onHistoryClick: () -> Unit) {
             fontWeight = FontWeight.SemiBold
         )
 
-        IconButton(onClick = onHistoryClick) {
-            Icon(
-                Icons.Filled.History,
-                contentDescription = "历史记录",
-                tint = MaterialTheme.colorScheme.primary
-            )
+        Row {
+            IconButton(onClick = onShareClick) {
+                Icon(
+                    Icons.Filled.Share,
+                    contentDescription = "分享",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+            IconButton(onClick = onHistoryClick) {
+                Icon(
+                    Icons.Filled.History,
+                    contentDescription = "历史记录",
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }

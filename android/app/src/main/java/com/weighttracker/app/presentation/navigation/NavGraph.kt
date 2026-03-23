@@ -30,7 +30,10 @@ fun NavGraph(
             )
         }
         composable(Screen.Entry.route) {
-            EntryScreen(onClose = onNavigateBack)
+            EntryScreen(
+                onClose = onNavigateBack,
+                onSettingsClick = onNavigateToSettings
+            )
         }
         composable(Screen.Trends.route) {
             TrendsScreen(

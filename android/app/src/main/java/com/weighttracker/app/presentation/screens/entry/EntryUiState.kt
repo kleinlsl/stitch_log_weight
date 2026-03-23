@@ -6,7 +6,7 @@ import java.time.LocalTime
 data class EntryUiState(
     val weight: String = "",
     val date: LocalDate = LocalDate.now(),
-    val time: LocalTime = LocalTime.of(8, 30),
+    val time: LocalTime = LocalTime.now(),
     val mood: Int? = null,
     val note: String = "",
     val isSaving: Boolean = false,

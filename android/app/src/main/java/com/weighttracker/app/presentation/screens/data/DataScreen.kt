@@ -70,6 +70,24 @@ fun DataScreen(
         uri?.let { viewModel.onImportClick(it) }
     }
 
+    val restoreLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.onRestoreClick(it) }
+    }
+
+    val migrationExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri: Uri? ->
+        uri?.let { viewModel.onMigrationExport(it) }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    ) { uri: Uri? ->
+        uri?.let { viewModel.onExport(it) }
+    }
+
     LaunchedEffect(uiState.message) {
         uiState.message?.let {
             snackbarHostState.showSnackbar(it)
@@ -81,6 +99,20 @@ fun DataScreen(
         ClearDataConfirmDialog(
             onConfirm = viewModel::onConfirmClearData,
             onDismiss = viewModel::onDismissClearDialog
+        )
+    }
+
+    if (uiState.showRestoreConfirmDialog) {
+        RestoreConfirmDialog(
+            onConfirm = viewModel::onConfirmRestore,
+            onDismiss = viewModel::onDismissRestoreDialog
+        )
+    }
+
+    if (uiState.showCleanupConfirmDialog) {
+        CleanupConfirmDialog(
+            onConfirm = viewModel::onConfirmCleanup,
+            onDismiss = viewModel::onDismissCleanupDialog
         )
     }
 
@@ -104,7 +136,9 @@ fun DataScreen(
                 storageSize = uiState.storageSize,
                 lastBackupTime = uiState.lastBackupTime,
                 onBackupClick = viewModel::onBackupClick,
-                isBackingUp = uiState.isBackingUp
+                isBackingUp = uiState.isBackingUp,
+                isRestoring = uiState.isRestoring,
+                onRestoreClick = { restoreLauncher.launch(arrayOf("application/json", "*/*")) }
             )
 
             Spacer(Modifier.height(24.dp))
@@ -112,7 +146,7 @@ fun DataScreen(
             ExcelSection(
                 isExporting = uiState.isExporting,
                 isImporting = uiState.isImporting,
-                onExportClick = viewModel::onExportClick,
+                onExportClick = { exportLauncher.launch("体重记录_${System.currentTimeMillis()}.xlsx") },
                 onImportClick = { 
                     importLauncher.launch(arrayOf(
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -125,7 +159,10 @@ fun DataScreen(
             Spacer(Modifier.height(24.dp))
 
             DataToolsSection(
-                onClearDataClick = viewModel::onClearDataClick
+                onClearDataClick = viewModel::onClearDataClick,
+                onCleanupClick = viewModel::onCleanupClick,
+                isCleaningUp = uiState.isCleaningUp,
+                onMigrationClick = { migrationExportLauncher.launch("体重记录_迁移_${System.currentTimeMillis()}.json") }
             )
 
             Spacer(Modifier.height(120.dp))
@@ -178,7 +215,9 @@ private fun StorageSection(
     storageSize: String,
     lastBackupTime: String?,
     onBackupClick: () -> Unit,
-    isBackingUp: Boolean
+    isBackingUp: Boolean,
+    isRestoring: Boolean,
+    onRestoreClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -263,7 +302,8 @@ private fun StorageSection(
                     modifier = Modifier.weight(1f),
                     icon = Icons.Filled.Restore,
                     text = "恢复数据",
-                    onClick = {}
+                    isLoading = isRestoring,
+                    onClick = onRestoreClick
                 )
             }
         }
@@ -424,7 +464,10 @@ private fun ExcelCard(
 
 @Composable
 private fun DataToolsSection(
-    onClearDataClick: () -> Unit
+    onClearDataClick: () -> Unit,
+    onCleanupClick: () -> Unit,
+    isCleaningUp: Boolean,
+    onMigrationClick: () -> Unit
 ) {
     Column {
         Text(
@@ -444,7 +487,8 @@ private fun DataToolsSection(
                     icon = Icons.Filled.AutoDelete,
                     title = "自动清理旧数据",
                     description = "清理 1 年前的冗余记录",
-                    onClick = {}
+                    isLoading = isCleaningUp,
+                    onClick = onCleanupClick
                 )
 
                 HorizontalDivider(
@@ -456,7 +500,7 @@ private fun DataToolsSection(
                     icon = Icons.Filled.MoveDown,
                     title = "数据迁移",
                     description = "将数据迁移至其他设备",
-                    onClick = {}
+                    onClick = onMigrationClick
                 )
 
                 HorizontalDivider(
@@ -482,20 +526,29 @@ private fun DataToolItem(
     title: String,
     description: String,
     isDangerous: Boolean = false,
+    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = !isLoading, onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = if (isDangerous) AppColors.Error else MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                strokeWidth = 2.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isDangerous) AppColors.Error else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -528,6 +581,54 @@ private fun ClearDataConfirmDialog(
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text("确认", color = AppColors.Error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
+}
+
+@Composable
+private fun RestoreConfirmDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("确认恢复数据？") },
+        text = {
+            Text("恢复数据将覆盖当前所有记录，此操作不可撤销。")
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("确认恢复")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
+}
+
+@Composable
+private fun CleanupConfirmDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("确认清理旧数据？") },
+        text = {
+            Text("此操作将删除 1 年前的所有记录，此操作不可撤销。")
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("确认清理", color = AppColors.Error)
             }
         },
         dismissButton = {

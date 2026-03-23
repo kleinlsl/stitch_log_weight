@@ -1,5 +1,7 @@
 package com.weighttracker.app.presentation.screens.trends
 
+import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.weighttracker.app.domain.model.TimeRange
@@ -31,6 +33,40 @@ class TrendsViewModel @Inject constructor(
     fun onTimeRangeChange(range: TimeRange) {
         _uiState.value = _uiState.value.copy(timeRange = range, isLoading = true)
         loadData(range)
+    }
+
+    fun shareTrendData(context: Context) {
+        val state = _uiState.value
+        val rangeLabel = when (state.timeRange) {
+            TimeRange.WEEK -> "近一周"
+            TimeRange.MONTH -> "近一月"
+            TimeRange.YEAR -> "近一年"
+        }
+        
+        val shareText = buildString {
+            appendLine("📊 体重趋势报告 ($rangeLabel)")
+            appendLine()
+            appendLine("平均体重: ${String.format("%.1f", state.averageWeight)} kg")
+            appendLine("最高体重: ${String.format("%.1f", state.maxWeight)} kg")
+            appendLine("最低体重: ${String.format("%.1f", state.minWeight)} kg")
+            if (state.change != 0.0) {
+                val changeText = if (state.change < 0) "↓" else "↑"
+                appendLine("变化: $changeText ${String.format("%.1f", kotlin.math.abs(state.change))} kg")
+            }
+            appendLine()
+            appendLine("最近记录:")
+            state.records.take(5).forEach { record ->
+                appendLine("• ${record.recordDate} ${record.recordTime} - ${record.weight} kg")
+            }
+            appendLine()
+            appendLine("来自「体重记录」App")
+        }
+
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+        context.startActivity(Intent.createChooser(intent, "分享趋势数据"))
     }
 
     private fun loadData(range: TimeRange) {

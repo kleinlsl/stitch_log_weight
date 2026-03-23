@@ -1,11 +1,11 @@
 package com.weighttracker.app.domain.usecase
 
 import com.weighttracker.app.data.file.ExcelManager
-import com.weighttracker.app.domain.model.WeightRecord
 import com.weighttracker.app.domain.repository.WeightRepository
 import kotlinx.coroutines.flow.first
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -23,6 +23,15 @@ class ExportToExcelUseCase @Inject constructor(
 
             excelManager.exportToExcel(records, FileOutputStream(outputFile))
                 .map { outputFile }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun exportToStream(outputStream: OutputStream): Result<Unit> {
+        return try {
+            val records = repository.getAllRecords().first()
+            excelManager.exportToExcel(records, outputStream)
         } catch (e: Exception) {
             Result.failure(e)
         }

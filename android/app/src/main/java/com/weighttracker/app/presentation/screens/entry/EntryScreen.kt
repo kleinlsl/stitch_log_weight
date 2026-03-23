@@ -64,6 +64,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EntryScreen(
     onClose: () -> Unit,
+    onSettingsClick: () -> Unit = {},
     viewModel: EntryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -91,7 +92,7 @@ fun EntryScreen(
         ) {
             TopBar(
                 onClose = onClose,
-                onSettings = {}
+                onSettings = onSettingsClick
             )
 
             Spacer(Modifier.height(24.dp))

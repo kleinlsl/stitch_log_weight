@@ -7,6 +7,11 @@ data class DataUiState(
     val isExporting: Boolean = false,
     val isImporting: Boolean = false,
     val isBackingUp: Boolean = false,
+    val isRestoring: Boolean = false,
+    val isCleaningUp: Boolean = false,
     val message: String? = null,
-    val showClearConfirmDialog: Boolean = false
+    val showClearConfirmDialog: Boolean = false,
+    val showRestoreConfirmDialog: Boolean = false,
+    val showCleanupConfirmDialog: Boolean = false,
+    val restoreFileUri: android.net.Uri? = null
 )
