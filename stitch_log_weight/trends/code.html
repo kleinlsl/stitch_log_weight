@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>趋势分析 - 体重记录</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#0b57d0",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#d3e3fd",
+                        "on-primary-container": "#041e49",
+                        surface: "#f8f9fa",
+                        "on-surface": "#1f1f1f",
+                        "surface-variant": "#e1e3e1",
+                        "on-surface-variant": "#444746",
+                        outline: "#747775"
+                    },
+                    fontFamily: {
+                        "headline": ["Public Sans", "Inter", "sans-serif"],
+                        "body": ["Public Sans", "Inter", "sans-serif"],
+                        "label": ["Public Sans", "Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Public Sans', 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#f8f9fa] text-[#1f1f1f] min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-50 bg-[#f8f9fa] border-none">
+<div class="flex items-center justify-between px-4 h-16 w-full max-w-xl mx-auto">
+<div class="flex items-center gap-4">
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors p-2 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">arrow_back</span>
+</button>
+<h1 class="font-['Inter'] font-semibold text-lg tracking-tight">趋势分析</h1>
+</div>
+<button class="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors p-2 active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined text-[#0b57d0] dark:text-blue-400">share</span>
+</button>
+</div>
+</header>
+<main class="max-w-xl mx-auto px-4 py-2">
+<!-- Time Range Selector -->
+<div class="flex bg-slate-200/50 p-1 rounded-2xl mb-6">
+<button class="flex-1 py-2 text-sm font-medium rounded-xl bg-white shadow-sm text-primary">周</button>
+<button class="flex-1 py-2 text-sm font-medium text-slate-600">月</button>
+<button class="flex-1 py-2 text-sm font-medium text-slate-600">年</button>
+</div>
+<!-- Main Chart Card (Bento Style) -->
+<section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-6">
+<div class="flex justify-between items-end mb-8">
+<div>
+<p class="text-sm text-slate-500 mb-1">平均体重</p>
+<div class="flex items-baseline gap-1">
+<span class="text-3xl font-bold tracking-tight text-slate-900">68.4</span>
+<span class="text-sm font-medium text-slate-500">kg</span>
+</div>
+</div>
+<div class="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg text-xs font-bold">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span>1.2kg</span>
+</div>
+</div>
+<!-- Visualization Placeholder (SVG Graph) -->
+<div class="w-full h-48 relative overflow-hidden">
+<svg class="w-full h-full" viewbox="0 0 400 150">
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#0b57d0" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#0b57d0" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0,120 Q50,110 80,90 T160,100 T240,60 T320,70 T400,40 L400,150 L0,150 Z" fill="url(#chartGradient)"></path>
+<path d="M0,120 Q50,110 80,90 T160,100 T240,60 T320,70 T400,40" fill="none" stroke="#0b57d0" stroke-linecap="round" stroke-width="3"></path>
+<circle cx="240" cy="60" fill="#0b57d0" r="4"></circle>
+<circle cx="240" cy="60" fill="#0b57d0" fill-opacity="0.2" r="8"></circle>
+</svg>
+<div class="absolute bottom-0 w-full flex justify-between px-2 text-[10px] text-slate-400 font-medium">
+<span>周一</span>
+<span>周二</span>
+<span>周三</span>
+<span>周四</span>
+<span>周五</span>
+<span>周六</span>
+<span>周日</span>
+</div>
+</div>
+</section>
+<!-- Statistical Highlights Grid -->
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-blue-50/50 rounded-3xl p-5 border border-blue-100/50">
+<span class="material-symbols-outlined text-blue-600 mb-2">vertical_align_top</span>
+<p class="text-xs text-slate-500 font-medium">最高体重</p>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-xl font-bold text-slate-900">70.2</span>
+<span class="text-xs text-slate-500">kg</span>
+</div>
+</div>
+<div class="bg-emerald-50/50 rounded-3xl p-5 border border-emerald-100/50">
+<span class="material-symbols-outlined text-emerald-600 mb-2">vertical_align_bottom</span>
+<p class="text-xs text-slate-500 font-medium">最低体重</p>
+<div class="flex items-baseline gap-1 mt-1">
+<span class="text-xl font-bold text-slate-900">67.8</span>
+<span class="text-xs text-slate-500">kg</span>
+</div>
+</div>
+</div>
+<!-- Recent Records Section -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-sm font-bold text-slate-900 px-1">最近记录</h2>
+<button class="text-primary text-xs font-bold px-2 py-1">查看全部</button>
+</div>
+<div class="space-y-3">
+<!-- Record Item -->
+<div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-slate-50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500 text-xl">scale</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900">68.1 kg</p>
+<p class="text-[10px] text-slate-400">今天 08:30</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-emerald-600">-0.3kg</span>
+</div>
+</div>
+<!-- Record Item -->
+<div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.02)] border border-slate-50">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-500 text-xl">scale</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900">68.4 kg</p>
+<p class="text-[10px] text-slate-400">昨天 08:15</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-slate-400">持平</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Insights Insight Card -->
+<div class="mt-6 bg-slate-900 text-white rounded-3xl p-6 relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-blue-400 text-lg">auto_awesome</span>
+<span class="text-xs font-bold tracking-widest uppercase opacity-70">智能分析</span>
+</div>
+<p class="text-sm leading-relaxed">你在早晨测量的体重通常比晚间低 <span class="text-blue-400 font-bold">0.8kg</span>。建议保持一致的测量时间以获得更准确的趋势。</p>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#f8f9fa]/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-200/30 dark:border-slate-800/30 shadow-[0_-4px_20px_rgba(0,0,0,0.02)] rounded-t-[24px]">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-1.5 hover:opacity-80 transition-opacity active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">calendar_today</span>
+<span class="font-['Inter'] text-[12px] font-medium">今日</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#0b57d0]/10 dark:bg-blue-400/10 text-[#0b57d0] dark:text-blue-300 rounded-2xl px-5 py-1.5 active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="font-['Inter'] text-[12px] font-bold">趋势</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-1.5 hover:opacity-80 transition-opacity active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">database</span>
+<span class="font-['Inter'] text-[12px] font-medium">数据</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-1.5 hover:opacity-80 transition-opacity active:scale-90 transition-all duration-300" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-['Inter'] text-[12px] font-medium">设置</span>
+</a>
+</nav>
+</body></html>

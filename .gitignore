@@ -1,0 +1,37 @@
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+build/
+.gradle/
+local.properties
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Kotlin
+*.class
+*.jar
+
+# Logs
+*.log
+
+# Generated
+*.apklisting
+*.hprof
+
+# Keystore
+*.jks
+*.keystore
+
+# Local config
+local.properties

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: "#0b57d0",
+                container: "#d3e3fd",
+                onContainer: "#041e49"
+              },
+              surface: {
+                DEFAULT: "#f8f9fa",
+                variant: "#e1e3e1"
+              },
+              outline: "#747775"
+            },
+            fontFamily: {
+              "headline": ["Public Sans", "Inter", "sans-serif"],
+              "body": ["Public Sans", "Inter", "sans-serif"],
+              "label": ["Public Sans", "Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        -webkit-tap-highlight-color: transparent;
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#f8f9fa] dark:bg-slate-950 font-body text-slate-900 dark:text-slate-100 min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-[#f8f9fa] dark:bg-slate-950 z-50">
+<div class="flex items-center justify-between px-4 h-16 w-full max-xl mx-auto">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-300">close</span>
+</button>
+<h1 class="font-['Inter'] font-semibold text-lg tracking-tight text-slate-900 dark:text-white">体重记录</h1>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-300" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<main class="max-w-xl mx-auto px-6 pt-4 space-y-8">
+<!-- Weight Input Section -->
+<section class="flex flex-col items-center justify-center py-8">
+<div class="relative group">
+<div class="flex items-baseline justify-center gap-2">
+<input class="w-48 text-center text-7xl font-bold bg-transparent border-none focus:ring-0 p-0 text-slate-900 dark:text-white" placeholder="00.0" step="0.1" type="number" value="65.5"/>
+<span class="text-2xl font-semibold text-slate-400 dark:text-slate-500">KG</span>
+</div>
+<div class="h-0.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
+<div class="h-full bg-[#0b57d0] dark:bg-blue-400 w-3/4"></div>
+</div>
+</div>
+<p class="mt-4 text-sm text-slate-500 dark:text-slate-400 font-medium">点击数字调整体重</p>
+</section>
+<!-- Bento Grid Form -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Date Picker -->
+<div class="col-span-1 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[20px]" data-icon="calendar_today">calendar_today</span>
+<span class="text-xs font-medium uppercase tracking-wider">日期</span>
+</div>
+<input class="bg-transparent border-none p-0 text-slate-900 dark:text-white font-semibold focus:ring-0 w-full" type="date" value="2023-10-27"/>
+</div>
+<!-- Time Picker -->
+<div class="col-span-1 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined text-[20px]" data-icon="schedule">schedule</span>
+<span class="text-xs font-medium uppercase tracking-wider">时间</span>
+</div>
+<input class="bg-transparent border-none p-0 text-slate-900 dark:text-white font-semibold focus:ring-0 w-full" type="time" value="08:30"/>
+</div>
+<!-- Mood Selection -->
+<div class="col-span-2 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-4">
+<span class="material-symbols-outlined text-[20px]" data-icon="mood">mood</span>
+<span class="text-xs font-medium uppercase tracking-wider">心情感受</span>
+</div>
+<div class="flex justify-between items-center px-2">
+<button class="flex flex-col items-center gap-2 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-3xl text-slate-400 hover:text-blue-500" data-icon="sentiment_very_dissatisfied">sentiment_very_dissatisfied</span>
+</button>
+<button class="flex flex-col items-center gap-2 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-3xl text-slate-400 hover:text-blue-500" data-icon="sentiment_dissatisfied">sentiment_dissatisfied</span>
+</button>
+<button class="flex flex-col items-center gap-2 transition-transform active:scale-90">
+<div class="p-2 bg-[#0b57d0]/10 dark:bg-blue-400/10 rounded-2xl">
+<span class="material-symbols-outlined text-3xl text-[#0b57d0] dark:text-blue-400" data-icon="sentiment_satisfied" style="font-variation-settings: 'FILL' 1;">sentiment_satisfied</span>
+</div>
+</button>
+<button class="flex flex-col items-center gap-2 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-3xl text-slate-400 hover:text-blue-500" data-icon="sentiment_satisfied_alt">sentiment_satisfied_alt</span>
+</button>
+<button class="flex flex-col items-center gap-2 transition-transform active:scale-90">
+<span class="material-symbols-outlined text-3xl text-slate-400 hover:text-blue-500" data-icon="sentiment_very_satisfied">sentiment_very_satisfied</span>
+</button>
+</div>
+</div>
+<!-- Notes -->
+<div class="col-span-2 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-3">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit_note">edit_note</span>
+<span class="text-xs font-medium uppercase tracking-wider">备注</span>
+</div>
+<textarea class="w-full bg-slate-50 dark:bg-slate-800/50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500/20 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 p-3" placeholder="今天的感觉如何？记下运动或饮食的变化..." rows="3"></textarea>
+</div>
+</div>
+</main>
+<!-- Floating Save Button -->
+<div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-[#f8f9fa] via-[#f8f9fa] to-transparent dark:from-slate-950 dark:via-slate-950">
+<div class="max-w-xl mx-auto">
+<button class="w-full bg-[#0b57d0] dark:bg-blue-500 text-white font-bold py-4 rounded-full shadow-lg shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" data-icon="check" style="font-variation-settings: 'wght' 600;">check</span>
+                保存记录
+            </button>
+</div>
+</div>
+<!-- BottomNavBar (Hidden for task-focused entry but defined by JSON rules) -->
+<!-- Suppressed based on "Task-Focused" rule in system instructions for "Close/Back" actions -->
+</body></html>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">体重记录</string>
+    
+    <!-- Navigation -->
+    <string name="nav_today">今日</string>
+    <string name="nav_trends">趋势</string>
+    <string name="nav_data">数据</string>
+    <string name="nav_settings">设置</string>
+    
+    <!-- Home Screen -->
+    <string name="current_weight">当前体重</string>
+    <string name="vs_last_week">较上周</string>
+    <string name="bmi_index">BMI 指数</string>
+    <string name="goal_progress">目标进度</string>
+    <string name="normal_range">正常范围</string>
+    <string name="week_trend">7日趋势</string>
+    <string name="recent_week">最近一周</string>
+    <string name="keep_going">继续保持！</string>
+    
+    <!-- Entry Screen -->
+    <string name="weight_record">体重记录</string>
+    <string name="weight_hint">00.0</string>
+    <string name="date">日期</string>
+    <string name="time">时间</string>
+    <string name="mood_feeling">心情感受</string>
+    <string name="note">备注</string>
+    <string name="note_hint">今天的感觉如何？记下运动或饮食的变化…</string>
+    <string name="save_record">保存记录</string>
+    <string name="tap_to_adjust">点击数字调整体重</string>
+    
+    <!-- Trends Screen -->
+    <string name="trends_analysis">趋势分析</string>
+    <string name="week">周</string>
+    <string name="month">月</string>
+    <string name="year">年</string>
+    <string name="average_weight">平均体重</string>
+    <string name="max_weight">最高体重</string>
+    <string name="min_weight">最低体重</string>
+    <string name="recent_records">最近记录</string>
+    <string name="view_all">查看全部</string>
+    <string name="smart_analysis">智能分析</string>
+    <string name="share">分享</string>
+    
+    <!-- Data Screen -->
+    <string name="data_management">数据管理</string>
+    <string name="local_storage">本地存储</string>
+    <string name="storage_used">数据库占用空间</string>
+    <string name="last_backup">上次备份</string>
+    <string name="backup_now">立即备份</string>
+    <string name="restore_data">恢复数据</string>
+    <string name="excel_operations">Excel 操作</string>
+    <string name="export_to_excel">导出为 Excel</string>
+    <string name="export_desc">生成详细的数据报表</string>
+    <string name="import_from_excel">从 Excel 导入</string>
+    <string name="import_desc">支持批量导入历史记录</string>
+    <string name="data_tools">数据工具</string>
+    <string name="auto_cleanup">自动清理旧数据</string>
+    <string name="auto_cleanup_desc">清理 1 年前的冗余记录</string>
+    <string name="data_migration">数据迁移</string>
+    <string name="data_migration_desc">将数据迁移至其他设备</string>
+    <string name="clear_all_data">彻底清空数据</string>
+    <string name="clear_data_warning">此操作不可撤销，请谨慎操作</string>
+    
+    <!-- Dialogs -->
+    <string name="confirm">确认</string>
+    <string name="cancel">取消</string>
+    <string name="confirm_clear_title">确认清空数据？</string>
+    <string name="confirm_clear_message">清空后所有体重记录将被永久删除，此操作不可撤销。</string>
+    
+    <!-- Messages -->
+    <string name="export_success">导出成功</string>
+    <string name="import_success">导入成功</string>
+    <string name="backup_success">备份成功</string>
+    <string name="restore_success">恢复成功</string>
+    <string name="save_success">保存成功</string>
+    <string name="error_weight_invalid">请输入有效的体重</string>
+    <string name="error_save_failed">保存失败</string>
+</resources>
