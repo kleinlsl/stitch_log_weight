@@ -6,6 +6,8 @@ data class DataUiState(
     val recordCount: Int = 0,
     val isExporting: Boolean = false,
     val isImporting: Boolean = false,
+    // Migration import loading state
+    val isMigratingImport: Boolean = false,
     val isBackingUp: Boolean = false,
     val isRestoring: Boolean = false,
     val isCleaningUp: Boolean = false,
@@ -13,5 +15,10 @@ data class DataUiState(
     val showClearConfirmDialog: Boolean = false,
     val showRestoreConfirmDialog: Boolean = false,
     val showCleanupConfirmDialog: Boolean = false,
-    val restoreFileUri: android.net.Uri? = null
+    // Migration import confirmation and URI
+    val showMigrationImportConfirmDialog: Boolean = false,
+    val migrationImportFileUri: android.net.Uri? = null,
+    val restoreFileUri: android.net.Uri? = null,
+    val exportedFilePath: String? = null,
+    val showShareDialog: Boolean = false
 )

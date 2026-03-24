@@ -1,5 +1,8 @@
 package com.weighttracker.app.presentation.screens.settings
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +28,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Info
@@ -56,6 +61,17 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val exportDirPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.confirmExportDir(it.toString()) }
+    }
+
+    if (uiState.showExportDirPicker) {
+        exportDirPickerLauncher.launch(null)
+        viewModel.closeExportDirPicker()
+    }
 
     if (uiState.showGoalWeightDialog) {
         NumberInputDialog(
@@ -156,6 +172,22 @@ fun SettingsScreen(
                     value = "${String.format("%.1f", uiState.startWeight)} kg",
                     hint = "用于计算目标进度",
                     onClick = { viewModel.openStartWeightDialog() }
+                )
+
+                Spacer(Modifier.height(24.dp))
+
+                Text(
+                    text = "数据管理",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                ExportDirSettingCard(
+                    defaultExportDir = uiState.defaultExportDir,
+                    onSelectClick = { viewModel.openExportDirPicker() },
+                    onClearClick = { viewModel.clearExportDir() }
                 )
 
                 Spacer(Modifier.height(24.dp))
@@ -463,4 +495,64 @@ private fun NumberInputDialog(
             }
         }
     )
+}
+
+@Composable
+private fun ExportDirSettingCard(
+    defaultExportDir: String?,
+    onSelectClick: () -> Unit,
+    onClearClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        color = MaterialTheme.colorScheme.surfaceContainerLowest,
+        shadowElevation = 1.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Folder,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "默认导出目录",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = if (defaultExportDir != null) {
+                        "已设置自定义目录"
+                    } else {
+                        "导出时每次选择位置"
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (defaultExportDir != null) {
+                IconButton(onClick = onClearClick) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = "清除",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            TextButton(onClick = onSelectClick) {
+                Text(
+                    text = if (defaultExportDir != null) "更改" else "设置",
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
 }

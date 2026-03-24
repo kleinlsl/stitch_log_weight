@@ -1,7 +1,9 @@
 package com.weighttracker.app.presentation.screens.data
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.weighttracker.app.data.file.BackupManager
@@ -63,20 +65,26 @@ class DataViewModel @Inject constructor(
             
             val result = withContext(Dispatchers.IO) {
                 try {
+                    val filePath = getFilePathFromUri(uri)
+                    
                     context.contentResolver.openOutputStream(uri)?.use { output ->
                         exportToExcelUseCase.exportToStream(output)
-                    } ?: Result.failure(Exception("无法打开文件"))
+                    } ?: return@withContext Result.failure(Exception("无法打开文件"))
+                    
+                    Result.success(filePath)
                 } catch (e: Exception) {
-                    Result.failure<File>(e)
+                    Result.failure<String>(e)
                 }
             }
             
             result.fold(
-                onSuccess = { file ->
+                onSuccess = { filePath ->
                     _uiState.update {
                         it.copy(
                             isExporting = false,
-                            message = "已导出成功"
+                            message = "已导出成功",
+                            exportedFilePath = filePath,
+                            showShareDialog = true
                         )
                     }
                 },
@@ -89,6 +97,20 @@ class DataViewModel @Inject constructor(
                     }
                 }
             )
+        }
+    }
+
+    private fun getFilePathFromUri(uri: Uri): String? {
+        return try {
+            val cursor = context.contentResolver.query(uri, null, null, null, null)
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val index = it.getColumnIndex("_data")
+                    if (index >= 0) it.getString(index) else null
+                } else null
+            }
+        } catch (e: Exception) {
+            null
         }
     }
 
@@ -374,8 +396,93 @@ class DataViewModel @Inject constructor(
         }
     }
 
+    // Migration Import Flow
+    fun onMigrationImport(uri: Uri) {
+        _uiState.update {
+            it.copy(
+                showMigrationImportConfirmDialog = true,
+                migrationImportFileUri = uri
+            )
+        }
+    }
+
+    fun onDismissMigrationImportDialog() {
+        _uiState.update {
+            it.copy(showMigrationImportConfirmDialog = false, migrationImportFileUri = null)
+        }
+    }
+
+    fun onConfirmMigrationImport() {
+        val uri = _uiState.value.migrationImportFileUri ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isMigratingImport = true, showMigrationImportConfirmDialog = false) }
+
+            val result = withContext(Dispatchers.IO) {
+                try {
+                    val tempFile = File(context.cacheDir, "migration_import.json")
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        tempFile.outputStream().use { output -> input.copyTo(output) }
+                    }
+
+                    val restoreResult = backupManager.restoreBackup(tempFile.inputStream())
+                    tempFile.delete()
+                    restoreResult.map { records ->
+                        deleteAllRecordsUseCase()
+                        records.forEach { record -> repository.addRecord(record) }
+                        records.size
+                    }
+                } catch (e: Exception) {
+                    Result.failure(e)
+                }
+            }
+
+            result.fold(
+                onSuccess = { count ->
+                    loadData()
+                    _uiState.update {
+                        it.copy(
+                            isMigratingImport = false,
+                            migrationImportFileUri = null,
+                            message = "迁移导入成功：导入 $count 条记录"
+                        )
+                    }
+                },
+                onFailure = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isMigratingImport = false,
+                            migrationImportFileUri = null,
+                            message = "导入失败: ${error.message}"
+                        )
+                    }
+                }
+            )
+        }
+    }
+
     fun clearMessage() {
         _uiState.update { it.copy(message = null) }
+    }
+
+    fun clearExportedFilePath() {
+        _uiState.update { it.copy(exportedFilePath = null, showShareDialog = false) }
+    }
+
+    fun getShareIntent(): Intent? {
+        val filePath = _uiState.value.exportedFilePath ?: return null
+        val file = File(filePath)
+        if (!file.exists()) return null
+        
+        return Intent(Intent.ACTION_SEND).apply {
+            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            val uri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                file
+            )
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
     }
 
     private fun estimateStorageSize(recordCount: Int): String {

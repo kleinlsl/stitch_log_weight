@@ -14,10 +14,12 @@ data class SettingsUiState(
     val goalWeight: Double = 70.0,
     val height: Double = 170.0,
     val startWeight: Double = 80.0,
+    val defaultExportDir: String? = null,
     val isLoading: Boolean = true,
     val showGoalWeightDialog: Boolean = false,
     val showHeightDialog: Boolean = false,
-    val showStartWeightDialog: Boolean = false
+    val showStartWeightDialog: Boolean = false,
+    val showExportDirPicker: Boolean = false
 )
 
 @HiltViewModel
@@ -46,6 +48,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.startWeight.collect { weight ->
                 _uiState.update { it.copy(startWeight = weight) }
+            }
+        }
+        viewModelScope.launch {
+            repository.defaultExportDir.collect { dir ->
+                _uiState.update { it.copy(defaultExportDir = dir) }
             }
         }
     }
@@ -111,6 +118,28 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.setStartWeight(weightValue)
             _uiState.update { it.copy(startWeight = weightValue, showStartWeightDialog = false) }
+        }
+    }
+
+    fun openExportDirPicker() {
+        _uiState.update { it.copy(showExportDirPicker = true) }
+    }
+
+    fun closeExportDirPicker() {
+        _uiState.update { it.copy(showExportDirPicker = false) }
+    }
+
+    fun confirmExportDir(uriString: String?) {
+        viewModelScope.launch {
+            repository.setDefaultExportDir(uriString)
+            _uiState.update { it.copy(defaultExportDir = uriString, showExportDirPicker = false) }
+        }
+    }
+
+    fun clearExportDir() {
+        viewModelScope.launch {
+            repository.setDefaultExportDir(null)
+            _uiState.update { it.copy(defaultExportDir = null) }
         }
     }
 }

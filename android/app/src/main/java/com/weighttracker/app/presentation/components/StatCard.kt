@@ -123,37 +123,19 @@ fun GoalProgressCard(
             )
             if (startWeight != null && currentWeight != null) {
                 Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "起始: ${String.format("%.1f", startWeight)} kg",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "目标: ${String.format("%.1f", currentWeight)} kg",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(Modifier.height(4.dp))
                 Text(
-                    text = if (weightChange > 0) {
-                        "已增 ${String.format("%.1f", weightChange)} kg"
-                    } else if (weightChange < 0) {
-                        "已减 ${String.format("%.1f", -weightChange)} kg"
-                    } else {
-                        "体重不变"
+                    text = buildString {
+                        append("${String.format("%.1f", startWeight)} → ${String.format("%.1f", currentWeight)}")
+                        if (weightChange <= 0) {
+                            append(" ✓")
+                        }
+                        append(" ${if (weightChange >= 0) "+" else ""}${String.format("%.1f", weightChange)}kg")
                     },
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (weightChange > 0) {
-                        MaterialTheme.colorScheme.error
-                    } else if (weightChange < 0) {
+                    color = if (weightChange <= 0) {
                         MaterialTheme.colorScheme.primary
                     } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                        MaterialTheme.colorScheme.error
                     }
                 )
             }

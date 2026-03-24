@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.weighttracker.app.domain.model.ChartMode
 import com.weighttracker.app.domain.model.TimeRange
 import com.weighttracker.app.domain.usecase.GetWeightRecordsUseCase
 import com.weighttracker.app.domain.usecase.GetWeightStatsUseCase
@@ -33,6 +34,14 @@ class TrendsViewModel @Inject constructor(
     fun onTimeRangeChange(range: TimeRange) {
         _uiState.value = _uiState.value.copy(timeRange = range, isLoading = true)
         loadData(range)
+    }
+
+    fun onChartModeToggle() {
+        val newMode = when (_uiState.value.chartMode) {
+            ChartMode.SCROLL -> ChartMode.OVERVIEW
+            ChartMode.OVERVIEW -> ChartMode.SCROLL
+        }
+        _uiState.value = _uiState.value.copy(chartMode = newMode)
     }
 
     fun shareTrendData(context: Context) {

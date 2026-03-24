@@ -1,5 +1,6 @@
 package com.weighttracker.app.presentation.screens.data
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.AutoDelete
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.filled.FileUpload
 import androidx.compose.material.icons.filled.MoveDown
@@ -51,8 +53,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.weighttracker.app.presentation.theme.AppColors
 
@@ -82,6 +86,13 @@ fun DataScreen(
         uri?.let { viewModel.onMigrationExport(it) }
     }
 
+    // Import migration file launcher (JSON)
+    val migrationImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.onMigrationImport(it) }
+    }
+
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     ) { uri: Uri? ->
@@ -109,10 +120,33 @@ fun DataScreen(
         )
     }
 
+    // Migration Import confirmation dialog
+    if (uiState.showMigrationImportConfirmDialog) {
+        MigrationImportConfirmDialog(
+            onConfirm = viewModel::onConfirmMigrationImport,
+            onDismiss = viewModel::onDismissMigrationImportDialog
+        )
+    }
+
     if (uiState.showCleanupConfirmDialog) {
         CleanupConfirmDialog(
             onConfirm = viewModel::onConfirmCleanup,
             onDismiss = viewModel::onDismissCleanupDialog
+        )
+    }
+
+    val context = LocalContext.current
+    if (uiState.showShareDialog && uiState.exportedFilePath != null) {
+        ExportSuccessDialog(
+            filePath = uiState.exportedFilePath,
+            onShare = {
+                val shareIntent = viewModel.getShareIntent()
+                shareIntent?.let {
+                    ContextCompat.startActivity(context, Intent.createChooser(it, "分享文件"), null)
+                }
+                viewModel.clearExportedFilePath()
+            },
+            onDismiss = viewModel::clearExportedFilePath
         )
     }
 
@@ -162,7 +196,8 @@ fun DataScreen(
                 onClearDataClick = viewModel::onClearDataClick,
                 onCleanupClick = viewModel::onCleanupClick,
                 isCleaningUp = uiState.isCleaningUp,
-                onMigrationClick = { migrationExportLauncher.launch("体重记录_迁移_${System.currentTimeMillis()}.json") }
+                onMigrationExportClick = { migrationExportLauncher.launch("体重记录_迁移_${System.currentTimeMillis()}.json") },
+                onMigrationImportClick = { migrationImportLauncher.launch(arrayOf("application/json", "text/json", "*/*")) }
             )
 
             Spacer(Modifier.height(120.dp))
@@ -467,7 +502,8 @@ private fun DataToolsSection(
     onClearDataClick: () -> Unit,
     onCleanupClick: () -> Unit,
     isCleaningUp: Boolean,
-    onMigrationClick: () -> Unit
+    onMigrationExportClick: () -> Unit,
+    onMigrationImportClick: () -> Unit
 ) {
     Column {
         Text(
@@ -498,9 +534,21 @@ private fun DataToolsSection(
 
                 DataToolItem(
                     icon = Icons.Filled.MoveDown,
-                    title = "数据迁移",
-                    description = "将数据迁移至其他设备",
-                    onClick = onMigrationClick
+                    title = "导出迁移文件",
+                    description = "将数据导出为迁移文件",
+                    onClick = onMigrationExportClick
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                )
+
+                DataToolItem(
+                    icon = Icons.Filled.FileUpload,
+                    title = "导入迁移文件",
+                    description = "从迁移文件恢复数据",
+                    onClick = onMigrationImportClick
                 )
 
                 HorizontalDivider(
@@ -616,6 +664,30 @@ private fun RestoreConfirmDialog(
 }
 
 @Composable
+private fun MigrationImportConfirmDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("确认导入迁移文件？") },
+        text = {
+            Text("导入迁移文件将覆盖当前数据，并从迁移文件中导入记录。是否继续？")
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("确认导入")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("取消")
+            }
+        }
+    )
+}
+
+@Composable
 private fun CleanupConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
@@ -634,6 +706,49 @@ private fun CleanupConfirmDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("取消")
+            }
+        }
+    )
+}
+
+@Composable
+private fun ExportSuccessDialog(
+    filePath: String?,
+    onShare: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("导出成功") },
+        text = {
+            Column {
+                Text("文件已保存")
+                if (filePath != null) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = filePath,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onShare) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Filled.Share,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text("分享")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("关闭")
             }
         }
     )

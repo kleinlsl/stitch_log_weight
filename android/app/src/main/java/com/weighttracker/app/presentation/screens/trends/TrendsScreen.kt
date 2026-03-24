@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.VerticalAlignBottom
 import androidx.compose.material.icons.filled.VerticalAlignTop
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.weighttracker.app.domain.model.ChartMode
 import com.weighttracker.app.domain.model.TimeRange
 import com.weighttracker.app.domain.model.WeightRecord
 import com.weighttracker.app.presentation.components.WeightLineChart
@@ -98,7 +101,9 @@ fun TrendsScreen(
                         ChartSection(
                             averageWeight = uiState.averageWeight,
                             change = uiState.change,
-                            records = uiState.records
+                            records = uiState.records,
+                            chartMode = uiState.chartMode,
+                            onModeToggle = viewModel::onChartModeToggle
                         )
                     }
 
@@ -117,7 +122,7 @@ fun TrendsScreen(
                         )
                     }
 
-                    items(uiState.records.take(5)) { record ->
+                    items(uiState.records.sortedByDescending { it.recordDate }.take(5)) { record ->
                         RecordItem(record = record)
                     }
 
@@ -219,7 +224,9 @@ private fun TimeRangeSelector(
 private fun ChartSection(
     averageWeight: Double,
     change: Double,
-    records: List<WeightRecord>
+    records: List<WeightRecord>,
+    chartMode: ChartMode,
+    onModeToggle: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -257,27 +264,46 @@ private fun ChartSection(
                     }
                 }
 
-                if (change != 0.0) {
-                    Row(
-                        modifier = Modifier
-                            .background(
-                                AppColors.Emerald50,
-                                MaterialTheme.shapes.small
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (change != 0.0) {
+                        Row(
+                            modifier = Modifier
+                                .background(
+                                    AppColors.Emerald50,
+                                    MaterialTheme.shapes.small
+                                )
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (change < 0) "↓" else "↑",
+                                color = AppColors.Emerald600,
+                                fontWeight = FontWeight.Bold
                             )
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = "${String.format("%.1f", kotlin.math.abs(change))}kg",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = AppColors.Emerald600,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onModeToggle,
+                        modifier = Modifier.size(32.dp)
                     ) {
-                        Text(
-                            text = if (change < 0) "↓" else "↑",
-                            color = AppColors.Emerald600,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = "${String.format("%.1f", kotlin.math.abs(change))}kg",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = AppColors.Emerald600,
-                            fontWeight = FontWeight.Bold
+                        Icon(
+                            imageVector = if (chartMode == ChartMode.SCROLL) 
+                                Icons.Outlined.Visibility 
+                            else Icons.Outlined.VisibilityOff,
+                            contentDescription = if (chartMode == ChartMode.SCROLL) "总览模式" else "滑动模式",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
@@ -287,6 +313,8 @@ private fun ChartSection(
 
             SimpleLineChart(
                 weights = records.map { it.weight },
+                dates = records.map { "${it.recordDate} ${it.recordTime}" },
+                chartMode = chartMode,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp)
@@ -298,10 +326,14 @@ private fun ChartSection(
 @Composable
 private fun SimpleLineChart(
     weights: List<Double>,
+    dates: List<String> = emptyList(),
+    chartMode: ChartMode = ChartMode.OVERVIEW,
     modifier: Modifier = Modifier
 ) {
     WeightLineChart(
         weights = weights,
+        dates = dates,
+        chartMode = chartMode,
         modifier = modifier
     )
 }
