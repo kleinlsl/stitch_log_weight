@@ -31,3 +31,6 @@ build/
 
 # Local config
 local.properties
+
+# Session records
+docs/session.md
